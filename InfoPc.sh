@@ -53,3 +53,9 @@ do
       break
    fi
 done
+
+count64=`dpkg -l | grep "amd64" | wc -l`
+countAll=`dpkg -l | tail -n +8 | wc -l`
+let persent=($count64*100)/$countAll
+
+echo "В системе установлено $persent% 64-разрядных пакетов"
