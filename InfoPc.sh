@@ -62,27 +62,33 @@ echo "В системе установлено $persent% 64-разрядных �
 echo ""
 
 echo "Сводка по RAID массивам:"
-printf "Массив: " 
-nameRAID=`sudo mdadm --detail --scan --verbose | grep "ARRAY" | awk '{print $2}'`
-echo $nameRAID
 
-printf "	Версия: "
-version=`sudo mdadm --detail --scan --verbose | grep "ARRAY" | awk '{print $5}'`
-echo $version | awk -F "=" '{print $2}'
-
-printf "	Тип: " 
-type=`sudo mdadm --detail --scan --verbose | grep "ARRAY" | awk '{print $3}'`
-echo $type | awk -F "=" '{print $2}'
-
-printf "	Размер: "
-size=`sudo mdadm --detail $nameRAID | grep "Array Size :" | awk '{print $7 " " $8}'`
-echo $size | awk -F ")" '{print $1}'
-
-echo "	Устройства и статусы: "
-countDev=`sudo mdadm --detail $nameRAID | grep "Total Devices : 4" | awk '{print $4}'`
-sudo mdadm --detail $nameRAID | tail -n -$countDev | while read line
+sudo mdadm --detail --scan --verbose | grep "ARRAY" | while read devs
 do
-   echo $line | awk -F " " '{print "	   " $5 " " $6 " " $7}'
+   nameRAID=`echo $devs | grep "ARRAY" | awk '{print $2}'`
+   printf "Массив: "
+   echo $nameRAID
+
+   printf "	Версия: "
+   version=`echo $devs | grep "ARRAY" | awk '{print $5}'`
+   echo $version | awk -F "=" '{print $2}'
+
+   printf "	Тип: " 
+   type=`echo $devs | grep "ARRAY" | awk '{print $3}'`
+   echo $type | awk -F "=" '{print $2}'
+
+   printf "	Размер: "
+   size=`sudo mdadm --detail $nameRAID | grep "Array Size :" | awk '{print $7 " " $8}'`
+   echo $size | awk -F ")" '{print $1}'
+
+   echo "	Устройства и статусы: "
+   countDev=`sudo mdadm --detail $nameRAID | grep "Total Devices : " | awk '{print $4}'`
+   sudo mdadm --detail $nameRAID | tail -n -$countDev | while read line
+   do
+      echo $line | awk -F " " '{print "	   " $5 " " $6 " " $7}'
+   done
+
+   echo ""
 done
 
 
